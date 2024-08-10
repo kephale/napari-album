@@ -1,8 +1,11 @@
 name: napari-album
 display_name: napari album
-# use 'hidden' to remove plugin from napari hub search results
 visibility: public
-# see https://napari.org/stable/plugins/manifest.html for valid categories
-categories: ["Annotation", "Segmentation", "Acquisition"]
+categories: ["Utilities"]
 contributions:
   commands:
+  - id: napari_album.widget
+    title: album
+    python_name: napari_album.widget:AlbumWidget
+  - command: napari_album.widget
+    display_name: album
