@@ -1,6 +1,6 @@
 import napari
 from qtpy.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QComboBox, QDialog, 
-                            QLabel, QLineEdit, QFormLayout, QDialogButtonBox)
+                            QLabel, QLineEdit, QFormLayout, QDialogButtonBox, QHBoxLayout)
 from qtpy.QtCore import Qt
 import requests
 import json
@@ -13,6 +13,25 @@ class AlbumWidget(QWidget):
         self.port = port
         self.layout = QVBoxLayout(self)
         
+        # Hostname and Port configuration
+        config_layout = QHBoxLayout()
+        
+        self.hostname_input = QLineEdit(self)
+        self.hostname_input.setText(self.hostname)
+        config_layout.addWidget(QLabel("Hostname:"))
+        config_layout.addWidget(self.hostname_input)
+        
+        self.port_input = QLineEdit(self)
+        self.port_input.setText(str(self.port))
+        config_layout.addWidget(QLabel("Port:"))
+        config_layout.addWidget(self.port_input)
+        
+        self.apply_config_button = QPushButton("Apply", self)
+        self.apply_config_button.clicked.connect(self.apply_config)
+        config_layout.addWidget(self.apply_config_button)
+        
+        self.layout.addLayout(config_layout)
+
         # Dropdown to fetch solutions from the album server
         self.dropdown = QComboBox(self)
         self.layout.addWidget(self.dropdown)
@@ -30,7 +49,14 @@ class AlbumWidget(QWidget):
         self.setLayout(self.layout)
         self.populate_dropdown()
 
+    def apply_config(self):
+        # Update hostname and port from input fields
+        self.hostname = self.hostname_input.text()
+        self.port = int(self.port_input.text())
+        self.populate_dropdown()
+
     def populate_dropdown(self):
+        self.dropdown.clear()  # Clear existing items before repopulating
         try:
             response = requests.get(f"http://{self.hostname}:{self.port}/index")
             if response.status_code == 200:
@@ -38,7 +64,6 @@ class AlbumWidget(QWidget):
 
                 # Debugging: Print the received index to the console in a more compact form
                 print("Received index from server:")
-                # print(json.dumps(index_response, indent=2)[:1000], "...")  # Only print the first 1000 characters
 
                 # Navigate into the 'index' key
                 if isinstance(index_response, dict) and 'index' in index_response:
